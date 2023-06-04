@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:insta_clone_app/models/user.dart';
 import 'package:insta_clone_app/presentation/components/button.dart';
 import 'package:insta_clone_app/presentation/components/text_field.dart';
+import 'package:insta_clone_app/services/auth.dart';
 
 class SignUpScreen extends StatefulWidget {
   final Function()? onTap;
@@ -32,74 +33,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final confirmPasswordTextController = TextEditingController();
   final usersCollection = FirebaseFirestore.instance.collection('Users');
   final authData = FirebaseAuth.instance;
-  final authSrevises = FirebaseAuth.instance;
-
-  void signUp() async {
-    if (image == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pick an image')),
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (context) => const Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-
-      if (passwordTextController.text != confirmPasswordTextController.text) {
-        Navigator.pop(context);
-        showMessage("Password don't match");
-        return;
-      }
-
-      try {
-        String uniqueName = DateTime.now().millisecondsSinceEpoch.toString();
-
-        Reference storageReference = FirebaseStorage.instance.ref();
-        Reference bucketRef = storageReference.child('images');
-        Reference imageRef = bucketRef.child(uniqueName);
-
-        final snapshot =
-            await imageRef.putFile(image!).whenComplete(() => null);
-
-        final imageUrl = await snapshot.ref.getDownloadURL();
-
-        final newUser = AppUser(
-          userImageUrl: imageUrl,
-          email: emailTextController.text,
-          name: nameTextController.text,
-          secondName: secondNameTextController.text,
-        );
-
-        final userCredential = await authData.createUserWithEmailAndPassword(
-          email: emailTextController.text.trim(),
-          password: passwordTextController.text.trim(),
-        );
-
-        userCredential.user!.updateDisplayName(nameTextController.text);
-
-        usersCollection.doc(userCredential.user!.uid).set(
-              newUser.toJson(),
-            );
-        if (mounted) {
-          Navigator.pop(context);
-        }
-      } on FirebaseAuthException catch (e) {
-        Navigator.pop(context);
-        showMessage(e.code);
-      }
-    }
-  }
-
-  void showMessage(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(message),
-      ),
-    );
-  }
+  final authService = AuthService();
 
   File? image;
 
@@ -205,7 +139,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 MyButton(
                   text: 'Sign Up',
-                  onTap: signUp,
+                  onTap: () => authService.signUp(
+                    context,
+                    emailTextController.text,
+                    nameTextController.text,
+                    secondNameTextController.text,
+                    passwordTextController.text,
+                    confirmPasswordTextController.text,
+                    image,
+                  ),
                 ),
                 const SizedBox(
                   height: 10,

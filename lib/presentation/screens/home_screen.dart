@@ -21,6 +21,21 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const CircularProgressIndicator();
+          } else if (snapshot.data!.docs.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(25),
+                    child: Text(
+                      'Post First --->',
+                      style: TextStyle(fontSize: 25, color: Colors.grey),
+                    ),
+                  )
+                ],
+              ),
+            );
           } else {
             return ListView.builder(
               itemCount: snapshot.data!.docs.length,
