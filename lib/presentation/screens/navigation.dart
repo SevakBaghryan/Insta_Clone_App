@@ -77,7 +77,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
             ),
           );
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }

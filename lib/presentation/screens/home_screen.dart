@@ -25,9 +25,9 @@ class _HomeScreenState extends State<HomeScreen> {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
-                children: [
+                children: const [
                   Padding(
-                    padding: const EdgeInsets.all(25),
+                    padding: EdgeInsets.all(25),
                     child: Text(
                       'Post First --->',
                       style: TextStyle(fontSize: 25, color: Colors.grey),
